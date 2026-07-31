@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD사이트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #0b0d14;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            color: #ffffff;
+        }
+
+        /* --- 백그라운드 빛 효과 --- */
+        .bg-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.22;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow--1 { top: -100px; left: 15%; background: radial-gradient(circle, #7928ca 0%, transparent 70%); }
+        .bg-glow--2 { bottom: -100px; right: 15%; background: radial-gradient(circle, #0070f3 0%, transparent 70%); }
+
+        /* --- 상단 네비게이션 바 (Glassmorphism) --- */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 70px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(11, 13, 20, 0.75);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 500;
+        }
+
+        .navbar__logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar__menu {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            background: transparent;
+            border: 1px solid transparent;
+            color: #a1a1aa;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .nav-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 메인 히어로 컨테이너 --- */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        /* 심장박동 타이틀 (2.4s 슬로우 + 네온 글로우) */
+        .hero-title {
+            font-size: 4.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, #0070f3 50%, #7928ca 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 35px rgba(0, 112, 243, 0.3));
+            animation: heartbeat 2.4s infinite ease-in-out;
+            user-select: none;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 25px rgba(0, 112, 243, 0.2));
+            }
+            14% {
+                transform: scale(1.08);
+                filter: drop-shadow(0 0 45px rgba(121, 40, 202, 0.5));
+            }
+            28% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 25px rgba(0, 112, 243, 0.2));
+            }
+            42% {
+                transform: scale(1.08);
+                filter: drop-shadow(0 0 45px rgba(121, 40, 202, 0.5));
+            }
+            70% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 25px rgba(0, 112, 243, 0.2));
+            }
+        }
+
+        /* 메인 버튼 카드 스타일 */
+        .nav-cards {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-btn {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            padding: 14px 26px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 112, 243, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 백그라운드 빛 효과 -->
+    <div class="bg-glow bg-glow--1"></div>
+    <div class="bg-glow bg-glow--2"></div>
+
+    <!-- 상단 네비게이션 바 -->
+    <header class="navbar">
+        <div class="navbar__logo">CRUD사이트</div>
+        <nav class="navbar__menu">
+            <a href="/shop.html" class="nav-btn">카드 상점</a>
+            <a href="/collection.html" class="nav-btn">보관함</a>
+            <a href="/reviews.html" class="nav-btn">상품평</a>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-container">
+        <h1 class="hero-title">CRUD사이트</h1>
+
+        <div class="nav-cards">
+            <a href="/shop.html" class="hero-btn">🛒 카드 상점</a>
+            <a href="/collection.html" class="hero-btn">💼 내 보관함</a>
+            <a href="/reviews.html" class="hero-btn">💬 상품평</a>
+        </div>
+    </main>
+
+</body>
+</html>
