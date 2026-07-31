@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoCss - 카드 구매</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 배경 조명 -->
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+
+  <!-- 상단 네비게이션 바 -->
+  <header class="navbar">
+    <div class="navbar__logo">PhotoCss</div>
+    <nav class="navbar__menu">
+      <a href="shop.html" class="nav-btn active">카드 구매</a>
+      <a href="collection.html" class="nav-btn">내 보관함</a>
+      <a href="sell.html" class="nav-btn">카드 판매</a>
+      <a href="reviews.html" class="nav-btn">상품평</a>
+    </nav>
+  </header>
+
+  <!-- 메인 컨텐츠 -->
+  <main class="container">
+    <div class="gallery">
+      <div class="card-item" data-img="image/park.png">
+        <div class="card-item__inner"><img src="image/park.png" alt="포토카드 1"></div>
+      </div>
+
+      <div class="card-item" data-img="image/lee.png">
+        <div class="card-item__inner"><img src="image/lee.png" alt="포토카드 2"></div>
+      </div>
+
+      <div class="card-item" data-img="image/na.png">
+        <div class="card-item__inner"><img src="image/na.png" alt="포토카드 3"></div>
+      </div>
+
+      <div class="card-item" data-img="image/back.png">
+        <div class="card-item__inner"><img src="image/back.png" alt="포토카드 4"></div>
+      </div>
+
+      <div class="card-item" data-img="image/song.png">
+        <div class="card-item__inner"><img src="image/song.png" alt="포토카드 5"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- [중앙 확대 모달] -->
+  <div class="modal" id="cardModal">
+    <div class="modal__backdrop"></div>
+    <div class="modal__card">
+      <div class="modal__card-glare"></div>
+      <div class="modal__card-inner">
+        <div class="modal__card-face modal__card-front">
+          <img id="modalImg" src="" alt="확대 카드">
+        </div>
+        <div class="modal__card-face modal__card-back"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
