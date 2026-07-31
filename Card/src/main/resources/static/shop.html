@@ -6,7 +6,6 @@
     <title>카드 상점</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
-        /* 모달 하단 구매 영역 스타일 추가 */
         .modal__action {
             position: absolute;
             bottom: -60px;
@@ -17,7 +16,6 @@
             display: flex;
             justify-content: center;
         }
-
         .buy-modal-btn {
             background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
             color: #fff;
@@ -31,7 +29,6 @@
             transition: all 0.25s ease;
             white-space: nowrap;
         }
-
         .buy-modal-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 25px rgba(121, 40, 202, 0.6);
@@ -42,7 +39,6 @@
     <div class="bg-glow bg-glow--1"></div>
     <div class="bg-glow bg-glow--2"></div>
 
-    <!-- 네비게이션 바 -->
     <header class="navbar">
         <div class="navbar__logo"><a href="./index.html" style="color:inherit; text-decoration:none;">CRUD사이트</a></div>
         <nav class="navbar__menu">
@@ -56,37 +52,38 @@
     <div class="container">
         <div class="section-title">
             <h2>🛒 카드 상점</h2>
-            <p>카드를 클릭하여 상세 모습을 확인하고 구매해 보세요.</p>
+            <p>카드를 클릭하여 3D로 입체 감상하고 구매해 보세요.</p>
         </div>
 
-        <!-- 카드 갤러리 목록 -->
         <div class="gallery">
-            <div class="card-item" onclick="openModal('Lee Card', './image/lee.png')">
+            <div class="card-item" onclick="open3DModal('Lee Card', './image/lee.png')">
                 <div class="card-item__inner"><img src="./image/lee.png" alt="Lee Card"></div>
             </div>
-            <div class="card-item" onclick="openModal('Na Card', './image/na.png')">
+            <div class="card-item" onclick="open3DModal('Na Card', './image/na.png')">
                 <div class="card-item__inner"><img src="./image/na.png" alt="Na Card"></div>
             </div>
-            <div class="card-item" onclick="openModal('Park Card', './image/park.png')">
+            <div class="card-item" onclick="open3DModal('Park Card', './image/park.png')">
                 <div class="card-item__inner"><img src="./image/park.png" alt="Park Card"></div>
             </div>
-            <div class="card-item" onclick="openModal('Song Card', './image/song.png')">
+            <div class="card-item" onclick="open3DModal('Song Card', './image/song.png')">
                 <div class="card-item__inner"><img src="./image/song.png" alt="Song Card"></div>
             </div>
         </div>
     </div>
 
-    <!-- [중앙 팝업 모달] -->
+    <!-- 3D 회전 모달 -->
     <div class="modal" id="cardModal">
         <div class="modal__backdrop" onclick="closeModal()"></div>
         <div class="modal__card" id="modalCard">
-            <div class="modal__card-inner">
+            <div class="modal__card-inner" id="cardInner">
                 <div class="modal__card-face modal__card-front">
                     <img id="modalImg" src="" alt="Card">
-                    <div class="modal__card-glare"></div>
+                    <div class="modal__card-glare" id="modalGlare"></div>
+                </div>
+                <div class="modal__card-face modal__card-back" style="background:#121318; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;">
+                    <img src="./image/back.png" alt="Card Back" style="width:100%; height:100%; object-fit:cover;">
                 </div>
             </div>
-            <!-- 확대된 카드 하단 구매 버튼 -->
             <div class="modal__action">
                 <button class="buy-modal-btn" onclick="buyCurrentCard()">🛒 카드 구매하기</button>
             </div>
@@ -94,47 +91,71 @@
     </div>
 
     <script>
-        let currentCardName = '';
-        let currentImgUrl = '';
+        let currentCardName = '', currentImgUrl = '';
+        let isFlipped = false;
 
-        // 1. 모달 열기 (기존 3D 상세보기 기능)
-        function openModal(cardName, imgUrl) {
+        function open3DModal(cardName, imgUrl) {
             currentCardName = cardName;
             currentImgUrl = imgUrl;
-
             document.getElementById('modalImg').src = imgUrl;
             document.getElementById('cardModal').classList.add('active');
+            resetCard3D();
         }
 
-        // 2. 모달 닫기
         function closeModal() {
             document.getElementById('cardModal').classList.remove('active');
+            resetCard3D();
         }
 
-        // 3. 확대된 상태에서 구매 버튼 클릭 시
+        function resetCard3D() {
+            isFlipped = false;
+            const inner = document.getElementById('cardInner');
+            const card = document.getElementById('modalCard');
+            inner.style.transform = 'rotateY(0deg)';
+            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }
+
+        // 마우스 이동에 따른 3D 틸트 & 빛 반사(Glare) 효과
+        const modalCard = document.getElementById('modalCard');
+        const modalGlare = document.getElementById('modalGlare');
+
+        modalCard.addEventListener('mousemove', (e) => {
+            const rect = modalCard.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            const rotateX = (-y / rect.height) * 30;
+            const rotateY = (x / rect.width) * 30;
+
+            modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            modalGlare.style.opacity = Math.abs(x) / (rect.width / 2);
+            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+        });
+
+        modalCard.addEventListener('mouseleave', () => {
+            modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            modalGlare.style.opacity = '0';
+        });
+
+        // 카드 클릭 시 180도 뒤집기 회전
+        modalCard.addEventListener('click', (e) => {
+            if (e.target.closest('.modal__action')) return;
+            isFlipped = !isFlipped;
+            document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        });
+
         async function buyCurrentCard() {
             if (!confirm(`${currentCardName}을(를) 구매하시겠습니까?`)) return;
-
             try {
                 const response = await fetch('/api/cards/purchase', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        cardName: currentCardName,
-                        imgUrl: currentImgUrl
-                    })
+                    body: JSON.stringify({ cardName: currentCardName, imgUrl: currentImgUrl })
                 });
-
                 if (response.ok) {
                     alert('성공적으로 구매되어 보관함(DB)에 저장되었습니다!');
                     closeModal();
-                } else {
-                    alert('구매에 실패했습니다.');
                 }
-            } catch (err) {
-                console.error(err);
-                alert('서버 통신 오류가 발생했습니다.');
-            }
+            } catch (err) { alert('오류가 발생했습니다.'); }
         }
     </script>
 </body>

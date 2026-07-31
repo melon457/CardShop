@@ -2,35 +2,52 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 보관함</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="bg-glow bg-glow--1"></div>
     <div class="bg-glow bg-glow--2"></div>
 
     <header class="navbar">
-        <div class="navbar__logo"><a href="/" style="color:inherit; text-decoration:none;">PhotoCss</a></div>
+        <div class="navbar__logo"><a href="./index.html" style="color:inherit; text-decoration:none;">CRUD사이트</a></div>
         <nav class="navbar__menu">
-            <a href="/shop.html" class="nav-btn">카드 상점</a>
-            <a href="/collection.html" class="nav-btn active">보관함</a>
-            <a href="/sell.html" class="nav-btn">카드 판매</a>
-            <a href="/reviews.html" class="nav-btn">상품평</a>
+            <a href="./shop.html" class="nav-btn">카드 상점</a>
+            <a href="./collection.html" class="nav-btn active">보관함</a>
+            <a href="./sell.html" class="nav-btn">카드 판매</a>
+            <a href="./reviews.html" class="nav-btn">상품평</a>
         </nav>
     </header>
 
     <div class="container">
         <div class="section-title">
             <h2>🎴 내 보관함</h2>
-            <p>DB에 저장된 구매한 카드 목록입니다.</p>
+            <p>보유 중인 카드를 클릭하면 3D 확대 감상 및 뒤집기가 가능합니다.</p>
         </div>
 
-        <div class="gallery" id="collection-list">
-            <!-- 자바스크립트로 자동 로딩 -->
+        <div class="gallery" id="collection-list"></div>
+    </div>
+
+    <!-- 3D 회전 모달 (버튼 없음) -->
+    <div class="modal" id="cardModal">
+        <div class="modal__backdrop" onclick="closeModal()"></div>
+        <div class="modal__card" id="modalCard">
+            <div class="modal__card-inner" id="cardInner">
+                <div class="modal__card-face modal__card-front">
+                    <img id="modalImg" src="" alt="Card">
+                    <div class="modal__card-glare" id="modalGlare"></div>
+                </div>
+                <div class="modal__card-face modal__card-back" style="background:#121318; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;">
+                    <img src="./image/back.png" alt="Card Back" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        let isFlipped = false;
+
         async function loadCollection() {
             try {
                 const res = await fetch('/api/cards/purchased');
@@ -46,17 +63,50 @@
                 cards.forEach(card => {
                     const cardEl = document.createElement('div');
                     cardEl.className = 'card-item';
-                    cardEl.innerHTML = `
-                        <div class="card-item__inner">
-                            <img src="${card.imgUrl}" alt="${card.cardName}">
-                        </div>
-                    `;
+                    cardEl.onclick = () => open3DModal(card.imgUrl);
+                    cardEl.innerHTML = `<div class="card-item__inner"><img src="${card.imgUrl}" alt="${card.cardName}"></div>`;
                     container.appendChild(cardEl);
                 });
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
+
+        function open3DModal(imgUrl) {
+            document.getElementById('modalImg').src = imgUrl;
+            document.getElementById('cardModal').classList.add('active');
+            resetCard3D();
+        }
+
+        function closeModal() {
+            document.getElementById('cardModal').classList.remove('active');
+            resetCard3D();
+        }
+
+        function resetCard3D() {
+            isFlipped = false;
+            document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
+            document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
+        }
+
+        const modalCard = document.getElementById('modalCard');
+        const modalGlare = document.getElementById('modalGlare');
+
+        modalCard.addEventListener('mousemove', (e) => {
+            const rect = modalCard.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            modalCard.style.transform = `rotateX(${(-y / rect.height) * 30}deg) rotateY(${(x / rect.width) * 30}deg)`;
+            modalGlare.style.opacity = Math.abs(x) / (rect.width / 2);
+        });
+
+        modalCard.addEventListener('mouseleave', () => {
+            modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            modalGlare.style.opacity = '0';
+        });
+
+        modalCard.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        });
 
         document.addEventListener('DOMContentLoaded', loadCollection);
     </script>
