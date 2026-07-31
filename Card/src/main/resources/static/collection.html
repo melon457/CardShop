@@ -86,22 +86,26 @@
             isFlipped = false;
             document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
             document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
+            document.getElementById('modalGlare').style.opacity = '0';
         }
 
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
+        const cardInner = document.getElementById('cardInner');
 
         modalCard.addEventListener('mousemove', (e) => {
             const rect = modalCard.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
 
-            const rotateX = (-y / (rect.height / 2)) * 18;
-            const rotateY = (x / (rect.width / 2)) * 18;
+            const rotateX = ((y - centerY) / centerY) * -18;
+            const rotateY = ((x - centerX) / centerX) * 18;
 
             modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             modalGlare.style.opacity = '1';
-            modalGlare.style.backgroundPosition = `${50 + (x / rect.width) * 100}% ${50 + (y / rect.height) * 100}%`;
+            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
         });
 
         modalCard.addEventListener('mouseleave', () => {
@@ -111,7 +115,7 @@
 
         modalCard.addEventListener('click', () => {
             isFlipped = !isFlipped;
-            document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
         });
 
         document.addEventListener('DOMContentLoaded', loadCollection);

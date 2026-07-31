@@ -6,11 +6,11 @@
     <title>카드 상점</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
-        .modal__container {
+        .modal__content-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
             z-index: 1001;
             position: relative;
         }
@@ -58,10 +58,14 @@
     <div class="container">
         <div class="section-title">
             <h2>🛒 카드 상점</h2>
-            <p>카드를 클릭하여 3D로 입체 감상하고 구매해 보세요.</p>
+            <p>카드를 클릭하여 3D 입체 모습과 뒷면을 감상하고 구매해 보세요.</p>
         </div>
 
+        <!-- 5개 카드 갤러리 (상단 3개 / 하단 2개) -->
         <div class="gallery">
+            <div class="card-item" onclick="open3DModal('Back Card', './image/back.png')">
+                <div class="card-item__inner"><img src="./image/back.png" alt="Back Card"></div>
+            </div>
             <div class="card-item" onclick="open3DModal('Lee Card', './image/lee.png')">
                 <div class="card-item__inner"><img src="./image/lee.png" alt="Lee Card"></div>
             </div>
@@ -77,18 +81,18 @@
         </div>
     </div>
 
-    <!-- 3D 모달 (카드와 버튼 분리) -->
+    <!-- 3D 모달 -->
     <div class="modal" id="cardModal">
         <div class="modal__backdrop" onclick="closeModal()"></div>
         
-        <div class="modal__container">
+        <div class="modal__content-wrapper">
             <div class="modal__card" id="modalCard">
                 <div class="modal__card-inner" id="cardInner">
                     <div class="modal__card-face modal__card-front">
                         <img id="modalImg" src="" alt="Card">
                         <div class="modal__card-glare" id="modalGlare"></div>
                     </div>
-                    <!-- 어두운 색상 단일 뒷면 -->
+                    <!-- 단색 어두운 카드 뒷면 -->
                     <div class="modal__card-face modal__card-back"></div>
                 </div>
             </div>
@@ -118,27 +122,29 @@
 
         function resetCard3D() {
             isFlipped = false;
-            const inner = document.getElementById('cardInner');
-            const card = document.getElementById('modalCard');
-            inner.style.transform = 'rotateY(0deg)';
-            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
+            document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
+            document.getElementById('modalGlare').style.opacity = '0';
         }
 
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
+        const cardInner = document.getElementById('cardInner');
 
-        // 3D 틸트 및 1자 대각선 빛 반사
+        // 3D 틸트 및 1자 대각선 빛 모션
         modalCard.addEventListener('mousemove', (e) => {
             const rect = modalCard.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
 
-            const rotateX = (-y / (rect.height / 2)) * 18;
-            const rotateY = (x / (rect.width / 2)) * 18;
+            const rotateX = ((y - centerY) / centerY) * -18;
+            const rotateY = ((x - centerX) / centerX) * 18;
 
             modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             modalGlare.style.opacity = '1';
-            modalGlare.style.backgroundPosition = `${50 + (x / rect.width) * 100}% ${50 + (y / rect.height) * 100}%`;
+            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
         });
 
         modalCard.addEventListener('mouseleave', () => {
@@ -148,7 +154,7 @@
 
         modalCard.addEventListener('click', () => {
             isFlipped = !isFlipped;
-            document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
         });
 
         async function buyCurrentCard() {

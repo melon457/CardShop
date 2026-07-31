@@ -6,16 +6,21 @@
     <title>카드 판매</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
+        .modal__content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            z-index: 1001;
+            position: relative;
+        }
+
         .modal__action {
-            position: absolute;
-            bottom: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1002;
-            width: 100%;
             display: flex;
             justify-content: center;
+            width: 100%;
         }
+
         .sell-modal-btn {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: #fff;
@@ -29,6 +34,7 @@
             transition: all 0.25s ease;
             white-space: nowrap;
         }
+
         .sell-modal-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 25px rgba(220, 38, 38, 0.6);
@@ -58,19 +64,21 @@
         <div class="gallery" id="sell-list"></div>
     </div>
 
-    <!-- 3D 회전 모달 -->
+    <!-- 3D 모달 -->
     <div class="modal" id="cardModal">
         <div class="modal__backdrop" onclick="closeModal()"></div>
-        <div class="modal__card" id="modalCard">
-            <div class="modal__card-inner" id="cardInner">
-                <div class="modal__card-face modal__card-front">
-                    <img id="modalImg" src="" alt="Card">
-                    <div class="modal__card-glare" id="modalGlare"></div>
-                </div>
-                <div class="modal__card-face modal__card-back" style="background:#121318; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;">
-                    <img src="./image/back.png" alt="Card Back" style="width:100%; height:100%; object-fit:cover;">
+
+        <div class="modal__content-wrapper">
+            <div class="modal__card" id="modalCard">
+                <div class="modal__card-inner" id="cardInner">
+                    <div class="modal__card-face modal__card-front">
+                        <img id="modalImg" src="" alt="Card">
+                        <div class="modal__card-glare" id="modalGlare"></div>
+                    </div>
+                    <div class="modal__card-face modal__card-back"></div>
                 </div>
             </div>
+
             <div class="modal__action">
                 <button class="sell-modal-btn" onclick="sellCurrentCard()">💰 카드 판매하기</button>
             </div>
@@ -100,7 +108,9 @@
                     cardEl.innerHTML = `<div class="card-item__inner"><img src="${card.imgUrl}" alt="${card.cardName}"></div>`;
                     container.appendChild(cardEl);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         function open3DModal(id, cardName, imgUrl) {
@@ -120,17 +130,26 @@
             isFlipped = false;
             document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
             document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
+            document.getElementById('modalGlare').style.opacity = '0';
         }
 
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
+        const cardInner = document.getElementById('cardInner');
 
         modalCard.addEventListener('mousemove', (e) => {
             const rect = modalCard.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            modalCard.style.transform = `rotateX(${(-y / rect.height) * 30}deg) rotateY(${(x / rect.width) * 30}deg)`;
-            modalGlare.style.opacity = Math.abs(x) / (rect.width / 2);
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = ((y - centerY) / centerY) * -18;
+            const rotateY = ((x - centerX) / centerX) * 18;
+
+            modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            modalGlare.style.opacity = '1';
+            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
         });
 
         modalCard.addEventListener('mouseleave', () => {
@@ -138,22 +157,27 @@
             modalGlare.style.opacity = '0';
         });
 
-        modalCard.addEventListener('click', (e) => {
-            if (e.target.closest('.modal__action')) return;
+        modalCard.addEventListener('click', () => {
             isFlipped = !isFlipped;
-            document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
         });
 
         async function sellCurrentCard() {
+            if (!currentCardId) return;
             if (!confirm(`${currentCardName}을(를) 정말 판매하시겠습니까?`)) return;
+
             try {
                 const res = await fetch(`/api/cards/sell/${currentCardId}`, { method: 'DELETE' });
                 if (res.ok) {
-                    alert('판매 완료되었습니다.');
+                    alert('성공적으로 판매되었습니다.');
                     closeModal();
                     loadSellCards();
+                } else {
+                    alert('판매에 실패했습니다.');
                 }
-            } catch (err) { alert('오류가 발생했습니다.'); }
+            } catch (err) {
+                alert('서버 통신 중 오류가 발생했습니다.');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', loadSellCards);
