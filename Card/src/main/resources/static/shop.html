@@ -6,16 +6,21 @@
     <title>카드 상점</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
+        .modal__container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 1001;
+            position: relative;
+        }
+
         .modal__action {
-            position: absolute;
-            bottom: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1002;
-            width: 100%;
             display: flex;
             justify-content: center;
+            width: 100%;
         }
+
         .buy-modal-btn {
             background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
             color: #fff;
@@ -29,6 +34,7 @@
             transition: all 0.25s ease;
             white-space: nowrap;
         }
+
         .buy-modal-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 25px rgba(121, 40, 202, 0.6);
@@ -71,19 +77,22 @@
         </div>
     </div>
 
-    <!-- 3D 회전 모달 -->
+    <!-- 3D 모달 (카드와 버튼 분리) -->
     <div class="modal" id="cardModal">
         <div class="modal__backdrop" onclick="closeModal()"></div>
-        <div class="modal__card" id="modalCard">
-            <div class="modal__card-inner" id="cardInner">
-                <div class="modal__card-face modal__card-front">
-                    <img id="modalImg" src="" alt="Card">
-                    <div class="modal__card-glare" id="modalGlare"></div>
-                </div>
-                <div class="modal__card-face modal__card-back" style="background:#121318; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;">
-                    <img src="./image/back.png" alt="Card Back" style="width:100%; height:100%; object-fit:cover;">
+        
+        <div class="modal__container">
+            <div class="modal__card" id="modalCard">
+                <div class="modal__card-inner" id="cardInner">
+                    <div class="modal__card-face modal__card-front">
+                        <img id="modalImg" src="" alt="Card">
+                        <div class="modal__card-glare" id="modalGlare"></div>
+                    </div>
+                    <!-- 어두운 색상 단일 뒷면 -->
+                    <div class="modal__card-face modal__card-back"></div>
                 </div>
             </div>
+
             <div class="modal__action">
                 <button class="buy-modal-btn" onclick="buyCurrentCard()">🛒 카드 구매하기</button>
             </div>
@@ -115,20 +124,21 @@
             card.style.transform = 'rotateX(0deg) rotateY(0deg)';
         }
 
-        // 마우스 이동에 따른 3D 틸트 & 빛 반사(Glare) 효과
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
 
+        // 3D 틸트 및 1자 대각선 빛 반사
         modalCard.addEventListener('mousemove', (e) => {
             const rect = modalCard.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
-            const rotateX = (-y / rect.height) * 30;
-            const rotateY = (x / rect.width) * 30;
+
+            const rotateX = (-y / (rect.height / 2)) * 18;
+            const rotateY = (x / (rect.width / 2)) * 18;
 
             modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            modalGlare.style.opacity = Math.abs(x) / (rect.width / 2);
-            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+            modalGlare.style.opacity = '1';
+            modalGlare.style.backgroundPosition = `${50 + (x / rect.width) * 100}% ${50 + (y / rect.height) * 100}%`;
         });
 
         modalCard.addEventListener('mouseleave', () => {
@@ -136,26 +146,30 @@
             modalGlare.style.opacity = '0';
         });
 
-        // 카드 클릭 시 180도 뒤집기 회전
-        modalCard.addEventListener('click', (e) => {
-            if (e.target.closest('.modal__action')) return;
+        modalCard.addEventListener('click', () => {
             isFlipped = !isFlipped;
             document.getElementById('cardInner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
         });
 
         async function buyCurrentCard() {
             if (!confirm(`${currentCardName}을(를) 구매하시겠습니까?`)) return;
+
             try {
                 const response = await fetch('/api/cards/purchase', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cardName: currentCardName, imgUrl: currentImgUrl })
                 });
+
                 if (response.ok) {
                     alert('성공적으로 구매되어 보관함(DB)에 저장되었습니다!');
                     closeModal();
+                } else {
+                    alert('구매에 실패했습니다.');
                 }
-            } catch (err) { alert('오류가 발생했습니다.'); }
+            } catch (err) {
+                alert('서버 통신 오류가 발생했습니다.');
+            }
         }
     </script>
 </body>
