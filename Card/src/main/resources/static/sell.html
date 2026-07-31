@@ -1,70 +1,158 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhotoCss - 카드 판매</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 판매</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* 모달 하단 판매 버튼 스타일 (빨간색 계열 포인트) */
+        .modal__action {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sell-modal-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .sell-modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(220, 38, 38, 0.6);
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-glow bg-glow--1"></div>
+    <div class="bg-glow bg-glow--2"></div>
 
-  <div class="bg-glow bg-glow--1"></div>
-  <div class="bg-glow bg-glow--2"></div>
+    <!-- 네비게이션 바 -->
+    <header class="navbar">
+        <div class="navbar__logo"><a href="./index.html" style="color:inherit; text-decoration:none;">CRUD사이트</a></div>
+        <nav class="navbar__menu">
+            <a href="./shop.html" class="nav-btn">카드 상점</a>
+            <a href="./collection.html" class="nav-btn">보관함</a>
+            <a href="./sell.html" class="nav-btn active">카드 판매</a>
+            <a href="./reviews.html" class="nav-btn">상품평</a>
+        </nav>
+    </header>
 
-  <header class="navbar">
-    <div class="navbar__logo">PhotoCss</div>
-    <nav class="navbar__menu">
-      <a href="shop.html" class="nav-btn">카드 구매</a>
-      <a href="collection.html" class="nav-btn">내 보관함</a>
-      <a href="sell.html" class="nav-btn active">카드 판매</a>
-      <a href="reviews.html" class="nav-btn">상품평</a>
-    </nav>
-  </header>
+    <div class="container">
+        <div class="section-title">
+            <h2>💰 카드 판매</h2>
+            <p>보유 중인 카드를 클릭하여 상세 모습을 확인하고 판매(삭제)해 보세요.</p>
+        </div>
 
-  <main class="container">
-    <div class="section-title">
-      <h2>카드 판매</h2>
-      <p>보유 중인 포토카드 중 판매 등록할 카드를 선택하세요.</p>
+        <!-- 보유 카드 갤러리 목록 -->
+        <div class="gallery" id="sell-list">
+            <!-- 자바스크립트로 DB 데이터 자동 로드 -->
+        </div>
     </div>
 
-    <div class="gallery">
-      <div class="sell-item">
-        <div class="card-item" data-img="image/park.png">
-          <div class="card-item__inner"><img src="image/park.png" alt="포토카드 1"></div>
+    <!-- [중앙 팝업 모달] -->
+    <div class="modal" id="cardModal">
+        <div class="modal__backdrop" onclick="closeModal()"></div>
+        <div class="modal__card" id="modalCard">
+            <div class="modal__card-inner">
+                <div class="modal__card-face modal__card-front">
+                    <img id="modalImg" src="" alt="Card">
+                    <div class="modal__card-glare"></div>
+                </div>
+            </div>
+            <!-- 확대된 카드 하단 판매 버튼 -->
+            <div class="modal__action">
+                <button class="sell-modal-btn" onclick="sellCurrentCard()">💰 카드 판매하기</button>
+            </div>
         </div>
-        <button class="ui-btn sell-btn">판매 등록</button>
-      </div>
-
-      <div class="sell-item">
-        <div class="card-item" data-img="image/lee.png">
-          <div class="card-item__inner"><img src="image/lee.png" alt="포토카드 2"></div>
-        </div>
-        <button class="ui-btn sell-btn">판매 등록</button>
-      </div>
-
-      <div class="sell-item">
-        <div class="card-item" data-img="image/na.png">
-          <div class="card-item__inner"><img src="image/na.png" alt="포토카드 3"></div>
-        </div>
-        <button class="ui-btn sell-btn">판매 등록</button>
-      </div>
     </div>
-  </main>
 
-  <!-- [중앙 확대 모달] -->
-  <div class="modal" id="cardModal">
-    <div class="modal__backdrop"></div>
-    <div class="modal__card">
-      <div class="modal__card-glare"></div>
-      <div class="modal__card-inner">
-        <div class="modal__card-face modal__card-front">
-          <img id="modalImg" src="" alt="확대 카드">
-        </div>
-        <div class="modal__card-face modal__card-back"></div>
-      </div>
-    </div>
-  </div>
+    <script>
+        let currentCardId = null;
+        let currentCardName = '';
 
-  <script src="js/script.js"></script>
+        // 1. 보유한 카드 목록 로드 (DB 조회)
+        async function loadSellCards() {
+            try {
+                const res = await fetch('/api/cards/purchased');
+                const cards = await res.json();
+                const container = document.getElementById('sell-list');
+                container.innerHTML = '';
+
+                if (cards.length === 0) {
+                    container.innerHTML = '<p style="color:#71717a; grid-column:1/-1;">판매할 카드가 없습니다.</p>';
+                    return;
+                }
+
+                cards.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card-item';
+                    cardEl.onclick = () => openModal(card.id, card.cardName, card.imgUrl);
+                    cardEl.innerHTML = `
+                        <div class="card-item__inner">
+                            <img src="${card.imgUrl}" alt="${card.cardName}">
+                        </div>
+                    `;
+                    container.appendChild(cardEl);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 2. 카드 클릭 시 모달 열기 (3D 확대)
+        function openModal(id, cardName, imgUrl) {
+            currentCardId = id;
+            currentCardName = cardName;
+
+            document.getElementById('modalImg').src = imgUrl;
+            document.getElementById('cardModal').classList.add('active');
+        }
+
+        // 3. 모달 닫기
+        function closeModal() {
+            document.getElementById('cardModal').classList.remove('active');
+        }
+
+        // 4. 모달 안에서 [판매하기] 버튼 클릭 시 DB 삭제 수행
+        async function sellCurrentCard() {
+            if (!currentCardId) return;
+            if (!confirm(`${currentCardName}을(를) 정말 판매하시겠습니까?`)) return;
+
+            try {
+                const res = await fetch(`/api/cards/sell/${currentCardId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    alert('성공적으로 판매(DB 삭제)되었습니다.');
+                    closeModal();
+                    loadSellCards(); // 판매 후 보유 목록 재갱신
+                } else {
+                    alert('판매에 실패했습니다.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('서버 통신 중 오류가 발생했습니다.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSellCards);
+    </script>
 </body>
 </html>
