@@ -167,11 +167,11 @@
             try {
                 const res = await fetch(`/api/cards/sell/${currentCardId}`, { method: 'DELETE' });
                 if (res.ok) {
-                    alert('성공적으로 판매되었습니다.');
+                    alert('판매됨');
                     closeModal();
                     loadSellCards();
                 } else {
-                    alert('판매에 실패했습니다.');
+                    alert('판매 실패');
                 }
             } catch (err) {
                 alert('서버 통신 중 오류가 발생했습니다.');
