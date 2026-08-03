@@ -13,12 +13,8 @@
             gap: 24px;
             z-index: 1001;
             position: relative;
+            perspective: 1000px; 
         }
-
-        .modal__card {
-            perspective: 1000px;
-        }
-
         .modal__card * {
             pointer-events: none;
         }
@@ -27,7 +23,6 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            z-index: 1002;
         }
 
         .buy-modal-btn {
@@ -134,8 +129,8 @@
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
         const cardInner = document.getElementById('cardInner');
-
         let cardRect = null;
+
         modalCard.addEventListener('mouseenter', () => {
             cardRect = modalCard.getBoundingClientRect();
         });
