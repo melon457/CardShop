@@ -13,12 +13,21 @@
             gap: 24px;
             z-index: 1001;
             position: relative;
-            perspective: 1000px;
-            transform-style: preserve-3d;
         }
-        
+
+        .modal__card {
+            perspective: 1000px;
+        }
+
         .modal__card * {
             pointer-events: none;
+        }
+
+        .modal__action {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            z-index: 1002;
         }
 
         .buy-modal-btn {
@@ -39,7 +48,7 @@
             transform: scale(1.05);
             box-shadow: 0 12px 25px rgba(121, 40, 202, 0.6);
         }
-    </style>
+</style>
 </head>
 <body>
     <div class="bg-glow bg-glow--1"></div>
@@ -125,23 +134,30 @@
         const modalCard = document.getElementById('modalCard');
         const modalGlare = document.getElementById('modalGlare');
         const cardInner = document.getElementById('cardInner');
-        
+
+        let cardRect = null;
+        modalCard.addEventListener('mouseenter', () => {
+            cardRect = modalCard.getBoundingClientRect();
+        });
+
         modalCard.addEventListener('mousemove', (e) => {
-            const rect = modalCard.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
+            if (!cardRect) cardRect = modalCard.getBoundingClientRect();
+
+            const x = e.clientX - cardRect.left;
+            const y = e.clientY - cardRect.top;
+            const centerX = cardRect.width / 2;
+            const centerY = cardRect.height / 2;
 
             const rotateX = ((y - centerY) / centerY) * -18;
             const rotateY = ((x - centerX) / centerX) * 18;
 
             modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             modalGlare.style.opacity = '1';
-            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+            modalGlare.style.backgroundPosition = `${(x / cardRect.width) * 100}% ${(y / cardRect.height) * 100}%`;
         });
 
         modalCard.addEventListener('mouseleave', () => {
+            cardRect = null;
             modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
             modalGlare.style.opacity = '0';
         });
