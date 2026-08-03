@@ -16,10 +16,10 @@ public class Review {
     private Long id;
 
     @Column(nullable = false)
-    private String buyerName; // 구매자 이름
+    private String buyerName; 
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;   // 상품평 내용
+    private String content;   
 
     private LocalDateTime createdAt;
 

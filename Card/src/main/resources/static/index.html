@@ -26,7 +26,6 @@
             color: #ffffff;
         }
 
-        /* --- 백그라운드 빛 효과 --- */
         .bg-glow {
             position: fixed;
             width: 500px;
@@ -41,7 +40,6 @@
         .bg-glow--1 { top: -100px; left: 15%; background: radial-gradient(circle, #7928ca 0%, transparent 70%); }
         .bg-glow--2 { bottom: -100px; right: 15%; background: radial-gradient(circle, #0070f3 0%, transparent 70%); }
 
-        /* --- 상단 네비게이션 바 (Glassmorphism) --- */
         .navbar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -89,7 +87,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* --- 메인 히어로 컨테이너 --- */
         .main-container {
             display: flex;
             flex-direction: column;
@@ -102,7 +99,6 @@
             margin-top: 40px;
         }
 
-        /* 심장박동 타이틀 (2.4s 슬로우 + 네온 글로우) */
         .hero-title {
             font-size: 4.2rem;
             font-weight: 900;
@@ -139,7 +135,6 @@
             }
         }
 
-        /* 메인 버튼 카드 스타일 */
         .nav-cards {
             display: flex;
             gap: 16px;
@@ -174,12 +169,9 @@
     </style>
 </head>
 <body>
-
-    <!-- 백그라운드 빛 효과 -->
     <div class="bg-glow bg-glow--1"></div>
     <div class="bg-glow bg-glow--2"></div>
 
-    <!-- 상단 네비게이션 바 -->
     <header class="navbar">
         <div class="navbar__logo">CRUD사이트</div>
         <nav class="navbar__menu">
@@ -189,7 +181,6 @@
         </nav>
     </header>
 
-    <!-- 메인 콘텐츠 -->
     <main class="main-container">
         <h1 class="hero-title">CRUD사이트</h1>
 

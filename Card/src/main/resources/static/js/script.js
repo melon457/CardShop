@@ -1,17 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. 3D 카드 확대 모달 초기화
   initModal();
 
-  // 2. 상품평 REST API 연동 (reviews.html 전용)
   initReviews();
 
-  // 3. 내 보관함 DB 카드 로드 (collection.html 전용)
   initCollection();
 });
 
-// ====================================================
-// 1. 3D 모달 및 은은한 빛 반사(Glare) 효과
-// ====================================================
 let isAnimating = false;
 
 function initModal() {
@@ -24,7 +18,6 @@ function initModal() {
   const modalImg = document.getElementById('modalImg');
   const glare = modal.querySelector('.modal__card-glare');
 
-  // 동적으로 추가된 카드를 포함해 카드 클릭 시 모달 열기
   document.addEventListener('click', (e) => {
     const cardItem = e.target.closest('.card-item');
     if (!cardItem) return;
@@ -55,7 +48,6 @@ function initModal() {
     setTimeout(() => { isAnimating = false; }, 850);
   });
 
-  // 3D 회전 및 빛 반사 효과
   if (modalCard && glare) {
     modalCard.addEventListener('mousemove', (e) => {
       if (isAnimating) return;
@@ -85,7 +77,6 @@ function initModal() {
     });
   }
 
-  // 모달 닫기
   if (backdrop) {
     backdrop.addEventListener('click', () => {
       if (isAnimating) return;
@@ -96,9 +87,6 @@ function initModal() {
   }
 }
 
-// ====================================================
-// 2. 상품평 REST API CRUD (reviews.html)
-// ====================================================
 function initReviews() {
   const reviewForm = document.getElementById('review-form');
   if (!reviewForm) return;
@@ -109,7 +97,6 @@ function initReviews() {
   const reviewList = document.getElementById('review-list');
   const submitBtn = document.getElementById('review-submit-btn');
 
-  // 상품평 목록 조회 (GET /api/reviews)
   function fetchReviews() {
     fetch('/api/reviews')
       .then(res => {
@@ -146,7 +133,6 @@ function initReviews() {
     });
   }
 
-  // 상품평 등록 및 수정 Submit (POST / PUT)
   reviewForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const id = reviewIdInput.value;
@@ -156,7 +142,6 @@ function initReviews() {
     if (!buyerName || !content) return;
 
     if (id) {
-      // 수정 (PUT)
       fetch(`/api/reviews/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -172,7 +157,6 @@ function initReviews() {
       })
       .catch(err => alert('수정 실패: ' + err.message));
     } else {
-      // 신규 등록 (POST)
       fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,8 +171,6 @@ function initReviews() {
       .catch(err => alert('등록 실패: ' + err.message));
     }
   });
-
-  // 수정 버튼 클릭 시 폼에 기존 데이터 대입
   window.editReview = function(id, name, content) {
     reviewIdInput.value = id;
     buyerNameInput.value = name;
@@ -196,7 +178,6 @@ function initReviews() {
     submitBtn.textContent = '리뷰 수정 완료';
   };
 
-  // 삭제 버튼 클릭 (DELETE)
   window.deleteReview = function(id) {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     fetch(`/api/reviews/${id}`, { method: 'DELETE' })
@@ -207,9 +188,6 @@ function initReviews() {
   fetchReviews();
 }
 
-// ====================================================
-// 3. 카드 구매 및 내 보관함 연동
-// ====================================================
 function initCollection() {
   const collectionGallery = document.getElementById('collection-gallery');
   if (collectionGallery) {
@@ -217,7 +195,6 @@ function initCollection() {
   }
 }
 
-// DB에서 보유 카드 목록을 불러와 출력 (GET /api/cards/collection)
 function fetchCollectionCards(container) {
   fetch('/api/cards/collection')
     .then(res => res.json())
@@ -243,7 +220,6 @@ function fetchCollectionCards(container) {
     .catch(err => console.error('보관함 로드 실패:', err));
 }
 
-// 카드 구매 함수 (POST /api/cards/purchase)
 window.buyCard = function(cardName, imgUrl) {
   fetch('/api/cards/purchase', {
     method: 'POST',
@@ -260,7 +236,6 @@ window.buyCard = function(cardName, imgUrl) {
   .catch(() => alert('카드 구매 처리 중 오류가 발생했습니다.'));
 };
 
-// 텍스트 보안 이스케이프 함수
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, "&amp;")

@@ -18,7 +18,6 @@ public class CardApiController {
         this.purchasedCardRepository = purchasedCardRepository;
     }
 
-    // 1. 카드 구매 (DB 저장)
     @PostMapping("/purchase")
     public ResponseEntity<PurchasedCard> purchaseCard(@RequestBody Map<String, String> request) {
         String cardName = request.get("cardName");
@@ -28,15 +27,11 @@ public class CardApiController {
         PurchasedCard savedCard = purchasedCardRepository.save(card);
         return ResponseEntity.ok(savedCard);
     }
-
-    // 2. 구매한 카드 목록 조회
     @GetMapping("/purchased")
     public ResponseEntity<List<PurchasedCard>> getPurchasedCards() {
         List<PurchasedCard> cards = purchasedCardRepository.findAll();
         return ResponseEntity.ok(cards);
     }
-
-    // 3. 카드 판매 (DB 삭제)
     @DeleteMapping("/sell/{id}")
     public ResponseEntity<Void> sellCard(@PathVariable Long id) {
         if (purchasedCardRepository.existsById(id)) {
