@@ -62,6 +62,6 @@ function toggleBGM() {
 function updateBgmButton() {
   const btn = document.getElementById('bgm-toggle-btn');
   if (btn) {
-    btn.innerText = isPlaying ? '⏸️ BGM OFF' : '🎵 BGM ON';
+    btn.innerText = isPlaying ? '🎵 BGM OFF' : '🎵 BGM ON';
   }
 }
