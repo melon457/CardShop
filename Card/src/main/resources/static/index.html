@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD사이트</title>
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * {
             margin: 0;
@@ -166,6 +167,30 @@
             transform: translateY(-4px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 112, 243, 0.3);
         }
+
+        /* BGM 버튼 위치 우측 하단 고정 */
+        .bgm-btn {
+            position: fixed !important;
+            bottom: 24px !important;
+            right: 24px !important;
+            z-index: 9999 !important;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .bgm-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -175,11 +200,11 @@
     <header class="navbar">
         <div class="navbar__logo">CRUD사이트</div>
         <nav class="navbar__menu">
-            <a href="/introduce.html" class="nav-btn">사이트 소개</a>
-            <a href="/shop.html" class="nav-btn">카드 상점</a>
-            <a href="/collection.html" class="nav-btn">보관함</a>
-            <a href="./sell.html" class="nav-btn">카드 판매</a>
-            <a href="/reviews.html" class="nav-btn">상품평</a>       
+            <a href="introduce.html" class="nav-btn">사이트 소개</a>
+            <a href="shop.html" class="nav-btn">카드 상점</a>
+            <a href="collection.html" class="nav-btn">보관함</a>
+            <a href="sell.html" class="nav-btn">카드 판매</a>
+            <a href="reviews.html" class="nav-btn">상품평</a>      
         </nav>
     </header>
 
@@ -187,13 +212,14 @@
         <h1 class="hero-title">CRUD사이트</h1>
 
         <div class="nav-cards">
-            <a href="/shop.html" class="hero-btn">🛒 카드 상점</a>
-            <a href="/collection.html" class="hero-btn">💼 내 보관함</a>
-            <a href="/reviews.html" class="hero-btn">💬 상품평</a>
+            <a href="shop.html" class="hero-btn">🛒 카드 상점</a>
+            <a href="collection.html" class="hero-btn">💼 내 보관함</a>
+            <a href="reviews.html" class="hero-btn">💬 상품평</a>
         </div>
     </main>
+
     <div id="yt-player" style="display:none;"></div>
-  <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM ON</button>
-  <script src="js/bgm.js"></script>
+    <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM ON</button>
+    <script src="js/bgm.js"></script>
 </body>
 </html>
