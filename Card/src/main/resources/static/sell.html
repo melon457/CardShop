@@ -19,6 +19,8 @@
             display: flex;
             justify-content: center;
             width: 100%;
+            position: relative;
+            z-index: 100;
         }
 
         .sell-modal-btn {
@@ -86,7 +88,6 @@
 
     <script>
         let currentCardId = null, currentCardName = '';
-        let isFlipped = false;
 
         async function loadSellCards() {
             try {
@@ -117,53 +118,15 @@
             currentCardName = cardName;
             document.getElementById('modalImg').src = imgUrl;
             document.getElementById('cardModal').classList.add('active');
-            resetCard3D();
         }
 
         function closeModal() {
             document.getElementById('cardModal').classList.remove('active');
-            resetCard3D();
         }
-
-        function resetCard3D() {
-            isFlipped = false;
-            document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
-            document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
-            document.getElementById('modalGlare').style.opacity = '0';
-        }
-
-        const modalCard = document.getElementById('modalCard');
-        const modalGlare = document.getElementById('modalGlare');
-        const cardInner = document.getElementById('cardInner');
-
-        modalCard.addEventListener('mousemove', (e) => {
-            const rect = modalCard.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            const rotateX = ((y - centerY) / centerY) * -18;
-            const rotateY = ((x - centerX) / centerX) * 18;
-
-            modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            modalGlare.style.opacity = '1';
-            modalGlare.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
-        });
-
-        modalCard.addEventListener('mouseleave', () => {
-            modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            modalGlare.style.opacity = '0';
-        });
-
-        modalCard.addEventListener('click', () => {
-            isFlipped = !isFlipped;
-            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
-        });
 
         async function sellCurrentCard() {
             if (!currentCardId) return;
-            if (!confirm(`${currentCardName}을(를) 정말 판매하시겠습니까?`)) return;
+            if (!confirm(`정말 판매하시겠습니까?`)) return;
 
             try {
                 const res = await fetch(`/api/cards/sell/${currentCardId}`, { method: 'DELETE' });
