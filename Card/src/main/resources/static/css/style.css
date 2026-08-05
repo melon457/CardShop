@@ -332,3 +332,55 @@ body {
   background: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
 }
+/* 카드 하단 빨간 네모 박스 위치 (평균 별점) */
+.card-avg-rating {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffca28; /* 노란색 별점 컬러 */
+}
+
+/* 카드 뒷면 별점 남기기 UI */
+.rating-section {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.rating-title {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.star-rating {
+    display: flex;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.star-rating .star {
+    font-size: 20px;
+    color: #555;
+    transition: color 0.2s;
+}
+
+.star-rating .star.active {
+    color: #ffca28;
+}
+
+.submit-rating-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    background-color: #ff4081;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-rating-btn:hover {
+    background-color: #e91e63;
+}
