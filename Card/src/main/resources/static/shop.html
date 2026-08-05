@@ -3,228 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD사이트 - 카드 상점</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>카드 상점</title>
+    <link rel="stylesheet" href="./css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background-color: #0b0d14;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 24px 24px;
+        .modal__content-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden;
+            gap: 24px;
+            z-index: 1001;
             position: relative;
-            color: #ffffff;
-            padding-top: 100px;
-            padding-bottom: 60px;
+            perspective: 1000px; 
         }
-
-        /* 배경 글로우 효과 */
-        .bg-glow {
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.22;
+        .modal__card-front * {
             pointer-events: none;
-            z-index: 0;
         }
-        .bg-glow--1 { top: -100px; left: 15%; background: radial-gradient(circle, #7928ca 0%, transparent 70%); }
-        .bg-glow--2 { bottom: -100px; right: 15%; background: radial-gradient(circle, #0070f3 0%, transparent 70%); }
 
-        /* 네비게이션 바 */
-        .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 70px;
-            padding: 0 40px;
+        .modal__action {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(11, 13, 20, 0.75);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 500;
+            justify-content: center;
+            width: 100%;
         }
 
-        .navbar__logo {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .navbar__menu {
-            display: flex;
-            gap: 12px;
-        }
-
-        .nav-btn {
-            text-decoration: none;
-            background: transparent;
-            border: 1px solid transparent;
-            color: #a1a1aa;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
+        .buy-modal-btn {
+            background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 112, 243, 0.4);
             transition: all 0.25s ease;
+            white-space: nowrap;
         }
 
-        .nav-btn:hover, .nav-btn.active {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+        .buy-modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(121, 40, 202, 0.6);
         }
 
-        /* 메인 컨테이너 */
-        .shop-container {
-            z-index: 1;
-            width: 100%;
-            max-width: 1000px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-            padding: 0 20px;
+        /* 사진 하단 평균 별점 표시 스타일 */
+        .card-avg-rating {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fbbf24;
+            text-align: center;
         }
 
-        .shop-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* 카드 그리드 */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 35px 25px;
-            width: 100%;
-            justify-items: center;
-        }
-
-        @media (max-width: 900px) {
-            .card-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-            .card-grid { grid-template-columns: repeat(1, 1fr); }
-        }
-
-        /* 카드 아이템 & 3D 회전 */
-        .card-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 220px;
-            perspective: 1000px;
-        }
-
-        .card-inner {
-            width: 220px;
-            height: 310px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border-radius: 16px;
-        }
-
-        .card-item.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .card-front img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .card-back {
-            background: rgba(20, 24, 38, 0.95);
-            backdrop-filter: blur(20px);
-            transform: rotateY(180deg);
+        /* 3D 모달 카드 뒷면 별점 평가 영역 스타일 */
+        .modal__card-back {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: rgba(20, 24, 38, 0.95);
             padding: 20px;
-            gap: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .buy-btn {
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
-            border: none;
-            border-radius: 20px;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0, 112, 243, 0.4);
-        }
-
-        .buy-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(121, 40, 202, 0.6);
-        }
-
-        /* 카드 뒷면 별점 평가 UI */
-        .rating-section {
+        .rating-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 12px 14px;
+            padding: 16px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
         }
 
         .rating-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
-            color: #e4e4e7;
+            color: #ffffff;
         }
 
         .star-rating {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             cursor: pointer;
         }
 
         .star-rating .star {
-            font-size: 22px;
+            font-size: 24px;
             color: #4b5563;
             transition: color 0.15s ease;
             user-select: none;
@@ -236,59 +101,19 @@
         }
 
         .submit-rating-btn {
-            margin-top: 4px;
-            padding: 6px 14px;
-            font-size: 12px;
+            margin-top: 6px;
+            padding: 6px 16px;
+            font-size: 13px;
             font-weight: 600;
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: none;
             border-radius: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .submit-rating-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* 카드 하단 평균 별점 표시 영역 (빨간 네모 박스 위치) */
-        .card-avg-rating {
-            margin-top: 10px;
-            padding: 4px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            color: #fbbf24;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        /* BGM 버튼 위치 우측 하단 고정 */
-        .bgm-btn {
-            position: fixed !important;
-            bottom: 24px !important;
-            right: 24px !important;
-            z-index: 9999 !important;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 10px 18px;
-            border-radius: 30px;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .bgm-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
             transform: scale(1.05);
         }
     </style>
@@ -298,274 +123,318 @@
     <div class="bg-glow bg-glow--2"></div>
 
     <header class="navbar">
-        <div class="navbar__logo">CRUD사이트</div>
+        <div class="navbar__logo"><a href="./index.html" style="color:inherit; text-decoration:none;">CRUD사이트</a></div>
         <nav class="navbar__menu">
-            <a href="introduce.html" class="nav-btn">사이트 소개</a>
-            <a href="shop.html" class="nav-btn active">카드 상점</a>
-            <a href="collection.html" class="nav-btn">보관함</a>
-            <a href="sell.html" class="nav-btn">카드 판매</a>
-            <a href="reviews.html" class="nav-btn">상품평</a>     
+            <a href="./introduce.html" class="nav-btn">사이트 소개</a>
+            <a href="./shop.html" class="nav-btn active">카드 상점</a>
+            <a href="./collection.html" class="nav-btn">보관함</a>
+            <a href="./sell.html" class="nav-btn">카드 판매</a>
+            <a href="./reviews.html" class="nav-btn">상품평</a>
         </nav>
     </header>
 
-    <main class="shop-container">
-        <h1 class="shop-title">🛒 카드 상점</h1>
-
-        <div class="card-grid">
-            <!-- 1. 장원영 카드 -->
-            <div class="card-item" data-card-name="jang">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/jang.png" alt="장원영 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('jang');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="jang">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('jang')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-jang">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
-            <!-- 2. 카리나 카드 -->
-            <div class="card-item" data-card-name="lee">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/lee.png" alt="카리나 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('lee');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="lee">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('lee')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-lee">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
-            <!-- 3. 민지 카드 -->
-            <div class="card-item" data-card-name="min">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/min.png" alt="민지 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('min');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="min">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('min')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-min">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
-            <!-- 4. 안유진 카드 -->
-            <div class="card-item" data-card-name="an">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/an.png" alt="안유진 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('an');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="an">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('an')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-an">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
-            <!-- 5. 가을 카드 -->
-            <div class="card-item" data-card-name="ga">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/ga.png" alt="가을 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('ga');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="ga">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('ga')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-ga">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
-            <!-- 6. 유나 카드 -->
-            <div class="card-item" data-card-name="yuna">
-                <div class="card-inner" onclick="toggleCard(this)">
-                    <div class="card-front">
-                        <img src="image/yuna.png" alt="유나 카드">
-                    </div>
-                    <div class="card-back">
-                        <button class="buy-btn" onclick="event.stopPropagation(); buyCard('yuna');">구매하기</button>
-                        <div class="rating-section" onclick="event.stopPropagation();">
-                            <span class="rating-title">별점 남기기</span>
-                            <div class="star-rating" data-card="yuna">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitRating('yuna')">별점 등록</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-avg-rating" id="avg-rating-yuna">
-                    <span class="avg-score">★ 0.0</span>
-                </div>
-            </div>
-
+    <div class="container">
+        <div class="section-title">
+            <h2>🛒 카드 상점</h2>
         </div>
-    </main>
+        <div class="gallery">
+            <div class="card-item" onclick="open3DModal('Back Card', './image/back.png')">
+                <div class="card-item__inner"><img src="./image/back.png" alt="Back Card"></div>
+                <div class="card-avg-rating" id="avg-rating-back"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Lee Card', './image/lee.png')">
+                <div class="card-item__inner"><img src="./image/lee.png" alt="Lee Card"></div>
+                <div class="card-avg-rating" id="avg-rating-lee"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Na Card', './image/na.png')">
+                <div class="card-item__inner"><img src="./image/na.png" alt="Na Card"></div>
+                <div class="card-avg-rating" id="avg-rating-na"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Park Card', './image/park.png')">
+                <div class="card-item__inner"><img src="./image/park.png" alt="Park Card"></div>
+                <div class="card-avg-rating" id="avg-rating-park"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Song Card', './image/song.png')">
+                <div class="card-item__inner"><img src="./image/song.png" alt="Song Card"></div>
+                <div class="card-avg-rating" id="avg-rating-song"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Kim Card', './image/kim.png')">
+                <div class="card-item__inner"><img src="./image/kim.png" alt="Kim Card"></div>
+                <div class="card-avg-rating" id="avg-rating-kim"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Iu Card', './image/iu.png')">
+                <div class="card-item__inner"><img src="./image/iu.png" alt="Iu Card"></div>
+                <div class="card-avg-rating" id="avg-rating-iu"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Go Card', './image/go.png')">
+                <div class="card-item__inner"><img src="./image/go.png" alt="Go Card"></div>
+                <div class="card-avg-rating" id="avg-rating-go"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Min Card', './image/min.png')">
+                <div class="card-item__inner"><img src="./image/min.png" alt="Min Card"></div>
+                <div class="card-avg-rating" id="avg-rating-min"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Snow Card', './image/snow.png')">
+                <div class="card-item__inner"><img src="./image/snow.png" alt="Snow Card"></div>
+                <div class="card-avg-rating" id="avg-rating-snow"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Ji Card', './image/ji.png')">
+                <div class="card-item__inner"><img src="./image/ji.png" alt="Ji Card"></div>
+                <div class="card-avg-rating" id="avg-rating-ji"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('An Card', './image/an.png')">
+                <div class="card-item__inner"><img src="./image/an.png" alt="An Card"></div>
+                <div class="card-avg-rating" id="avg-rating-an"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Ga Card', './image/ga.png')">
+                <div class="card-item__inner"><img src="./image/ga.png" alt="Ga Card"></div>
+                <div class="card-avg-rating" id="avg-rating-ga"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Ka Card', './image/ka.png')">
+                <div class="card-item__inner"><img src="./image/ka.png" alt="Ka Card"></div>
+                <div class="card-avg-rating" id="avg-rating-ka"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Yuna Card', './image/yuna.png')">
+                <div class="card-item__inner"><img src="./image/yuna.png" alt="Yuna Card"></div>
+                <div class="card-avg-rating" id="avg-rating-yuna"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Es Card', './image/es.png')">
+                <div class="card-item__inner"><img src="./image/es.png" alt="Es Card"></div>
+                <div class="card-avg-rating" id="avg-rating-es"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Jang Card', './image/jang.png')">
+                <div class="card-item__inner"><img src="./image/jang.png" alt="Jang Card"></div>
+                <div class="card-avg-rating" id="avg-rating-jang"><span class="avg-score">★ 0.0</span></div>
+            </div>
+            <div class="card-item" onclick="open3DModal('Ian Card', './image/ian.png')">
+                <div class="card-item__inner"><img src="./image/ian.png" alt="Ian Card"></div>
+                <div class="card-avg-rating" id="avg-rating-ian"><span class="avg-score">★ 0.0</span></div>
+            </div>
+        </div>
+    </div>
 
-    <div id="yt-player" style="display:none;"></div>
-    <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM ON</button>
+    <div class="modal" id="cardModal">
+        <div class="modal__backdrop" onclick="closeModal()"></div>
+        
+        <div class="modal__content-wrapper">
+            <div class="modal__card" id="modalCard">
+                <div class="modal__card-inner" id="cardInner">
+                    <div class="modal__card-face modal__card-front">
+                        <img id="modalImg" src="" alt="Card">
+                        <div class="modal__card-glare" id="modalGlare"></div>
+                    </div>
+                    <!-- 모달에서 카드를 클릭하여 뒤집었을 때 나오는 별점 작성 영역 -->
+                    <div class="modal__card-face modal__card-back">
+                        <div class="rating-box">
+                            <span class="rating-title">별점 평가</span>
+                            <div class="star-rating" id="modalStarRating">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <button class="submit-rating-btn" onclick="submitCurrentRating()">별점 등록</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <script src="js/bgm.js"></script>
+            <div class="modal__action">
+                <button class="buy-modal-btn" onclick="buyCurrentCard()">🛒 카드 구매하기</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- 자바스크립트 비즈니스 로직 -->
     <script>
+        let currentCardName = '', currentImgUrl = '', currentCardKey = '';
+        let isFlipped = false;
+        let selectedRatingValue = 0;
+
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 페이지 로드 시 각 카드의 평균 별점 DB에서 불러오기
+            // 1. 페이지 로드 시 상점에 있는 모든 카드의 평균 별점을 DB에서 불러옴
             const cardItems = document.querySelectorAll('.card-item');
             cardItems.forEach(item => {
-                const cardName = item.getAttribute('data-card-name');
-                if (cardName) {
-                    loadAverageRating(cardName);
+                const img = item.querySelector('img');
+                if (img && img.src) {
+                    const cardKey = getCardKeyFromUrl(img.src);
+                    if (cardKey) {
+                        loadAverageRating(cardKey);
+                    }
                 }
             });
 
-            // 2. 별점 클릭 인터랙션 설정
+            // 2. 모달 별점 클릭 이벤트 세팅
             setupStarRating();
         });
 
-        // 카드 회전 함수
-        function toggleCard(cardInner) {
-            const cardItem = cardInner.parentElement;
-            cardItem.classList.toggle('flipped');
+        function getCardKeyFromUrl(url) {
+            const filename = url.split('/').pop();
+            return filename.replace('.png', '').replace('.jpg', '');
         }
 
-        // 별점 클릭 이벤트 설정
+        function open3DModal(cardName, imgUrl) {
+            currentCardName = cardName;
+            currentImgUrl = imgUrl;
+            currentCardKey = getCardKeyFromUrl(imgUrl);
+
+            document.getElementById('modalImg').src = imgUrl;
+            document.getElementById('cardModal').classList.add('active');
+            resetCard3D();
+            resetModalStars();
+        }
+
+        function closeModal() {
+            document.getElementById('cardModal').classList.remove('active');
+            resetCard3D();
+        }
+
+        function resetCard3D() {
+            isFlipped = false;
+            document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
+            document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
+            document.getElementById('modalGlare').style.opacity = '0';
+        }
+
+        const modalCard = document.getElementById('modalCard');
+        const modalGlare = document.getElementById('modalGlare');
+        const cardInner = document.getElementById('cardInner');
+        let cardRect = null;
+
+        modalCard.addEventListener('mouseenter', () => {
+            cardRect = modalCard.getBoundingClientRect();
+        });
+
+        modalCard.addEventListener('mousemove', (e) => {
+            if (!cardRect) cardRect = modalCard.getBoundingClientRect();
+
+            const x = e.clientX - cardRect.left;
+            const y = e.clientY - cardRect.top;
+            const centerX = cardRect.width / 2;
+            const centerY = cardRect.height / 2;
+
+            const rotateX = ((y - centerY) / centerY) * -18;
+            const rotateY = ((x - centerX) / centerX) * 18;
+
+            modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            modalGlare.style.opacity = '1';
+            modalGlare.style.backgroundPosition = `${(x / cardRect.width) * 100}% ${(y / cardRect.height) * 100}%`;
+        });
+
+        modalCard.addEventListener('mouseleave', () => {
+            cardRect = null;
+            modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            modalGlare.style.opacity = '0';
+        });
+
+        // 카드 클릭 시 3D 회전 (별점 박스나 버튼 클릭 시에는 회전 방지)
+        modalCard.addEventListener('click', (e) => {
+            if (e.target.closest('.rating-box') || e.target.closest('button')) return;
+            isFlipped = !isFlipped;
+            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        });
+
+        // 카드 구매 기능 (POST /api/cards/purchase)
+        async function buyCurrentCard() {
+            if (!confirm(`[${currentCardName}] 카드를 구매하시겠습니까?`)) return;
+
+            try {
+                const response = await fetch('/api/cards/purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cardName: currentCardName, imgUrl: currentImgUrl })
+                });
+
+                if (response.ok) {
+                    alert('구매 성공! 보관함에서 확인하실 수 있습니다.');
+                    closeModal();
+                } else {
+                    alert('구매 실패');
+                }
+            } catch (err) {
+                alert('서버 통신 오류가 발생했습니다.');
+            }
+        }
+
+        // 별점 UI 클릭 인터랙션
         function setupStarRating() {
-            document.querySelectorAll('.star-rating').forEach(ratingContainer => {
-                const stars = ratingContainer.querySelectorAll('.star');
-
-                stars.forEach(star => {
-                    star.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 카드 회전 동작 방지
-                        const selectedValue = parseInt(star.getAttribute('data-value'));
-                        ratingContainer.setAttribute('data-selected-rating', selectedValue);
-
-                        stars.forEach(s => {
-                            if (parseInt(s.getAttribute('data-value')) <= selectedValue) {
-                                s.classList.add('active');
-                            } else {
-                                s.classList.remove('active');
-                            }
-                        });
-                    });
+            const stars = document.querySelectorAll('#modalStarRating .star');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectedRatingValue = parseInt(star.getAttribute('data-value'));
+                    updateModalStarUI(selectedRatingValue);
                 });
             });
         }
 
-        // 별점 DB 저장 요청 (POST /api/ratings)
-        function submitRating(cardName) {
-            const ratingContainer = document.querySelector(`.star-rating[data-card="${cardName}"]`);
-            const rating = ratingContainer ? parseInt(ratingContainer.getAttribute('data-selected-rating')) : 0;
+        function updateModalStarUI(value) {
+            const stars = document.querySelectorAll('#modalStarRating .star');
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        }
 
-            if (!rating || rating === 0) {
+        function resetModalStars() {
+            selectedRatingValue = 0;
+            updateModalStarUI(0);
+        }
+
+        // 별점 등록 API 요청 (POST /api/ratings)
+        async function submitCurrentRating() {
+            if (!selectedRatingValue || selectedRatingValue === 0) {
                 alert("별점을 선택해주세요.");
                 return;
             }
 
-            fetch('/api/ratings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cardName: cardName, rating: rating })
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert("별점이 성공적으로 등록되었습니다!");
-                updateAvgDisplay(cardName, data.averageRating);
-            })
-            .catch(err => console.error("별점 등록 실패:", err));
+            try {
+                const response = await fetch('/api/ratings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cardName: currentCardKey, rating: selectedRatingValue })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert("별점이 성공적으로 등록되었습니다!");
+                    updateAvgDisplay(currentCardKey, data.averageRating);
+                } else {
+                    alert("별점 등록에 실패했습니다.");
+                }
+            } catch (err) {
+                console.error("별점 등록 오류:", err);
+                alert("서버 통신 오류가 발생했습니다.");
+            }
         }
 
-        // 서버에서 평균 별점 조회 (GET /api/ratings/{cardName}/average)
-        function loadAverageRating(cardName) {
-            fetch(`/api/ratings/${cardName}/average`)
-            .then(res => res.json())
-            .then(data => {
-                updateAvgDisplay(cardName, data.averageRating);
-            })
-            .catch(err => console.error("평균 별점 조회 실패:", err));
+        // 서버에서 카드 평균 별점 조회 (GET /api/ratings/{cardKey}/average)
+        async function loadAverageRating(cardKey) {
+            try {
+                const res = await fetch(`/api/ratings/${cardKey}/average`);
+                if (res.ok) {
+                    const data = await res.json();
+                    updateAvgDisplay(cardKey, data.averageRating);
+                }
+            } catch (err) {
+                console.error("평균 별점 조회 실패:", err);
+            }
         }
 
-        // 사진 하단 영역에 평균 별점 업데이트
-        function updateAvgDisplay(cardName, avgRating) {
-            const avgScoreElem = document.querySelector(`#avg-rating-${cardName} .avg-score`);
+        // 사진 하단에 평균 별점 출력
+        function updateAvgDisplay(cardKey, avgRating) {
+            const avgScoreElem = document.querySelector(`#avg-rating-${cardKey} .avg-score`);
             if (avgScoreElem) {
                 avgScoreElem.textContent = `★ ${Number(avgRating).toFixed(1)}`;
             }
         }
-
-        // 카드 구매 임시 함수 (필요 시 연동)
-        function buyCard(cardName) {
-            alert(`${cardName} 카드를 구매했습니다!`);
-        }
     </script>
+
+    <div id="yt-player" style="display:none;"></div>
+    <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM ON</button>
+    <script src="js/bgm.js"></script>
 </body>
 </html>
