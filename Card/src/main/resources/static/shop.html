@@ -6,23 +6,42 @@
     <title>카드 상점</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
+        /* 모달 레이아웃: 좌측(카드+구매버튼) / 우측(별점 평가 패널) */
         .modal__content-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            z-index: 1001;
+            position: relative;
+        }
+
+        .modal__left-col {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
-            z-index: 1001;
+            gap: 20px;
             position: relative;
-            perspective: 1000px; 
         }
-        .modal__card-front * {
+
+        /* 모달 카드 (3D 기울임 제거, 깔끔한 레이아웃 유지) */
+        .modal__card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal__card * {
             pointer-events: none;
         }
 
+        /* 카드 구매 버튼 영역 - 최상단 레이어 배치 */
         .modal__action {
             display: flex;
             justify-content: center;
             width: 100%;
+            position: relative;
+            z-index: 100;
         }
 
         .buy-modal-btn {
@@ -40,45 +59,29 @@
         }
 
         .buy-modal-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(121, 40, 202, 0.6);
         }
 
-        /* 사진 하단 평균 별점 표시 스타일 */
-        .card-avg-rating {
-            margin-top: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #fbbf24;
-            text-align: center;
-        }
-
-        /* 3D 모달 카드 뒷면 별점 평가 영역 스타일 */
-        .modal__card-back {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(20, 24, 38, 0.95);
-            padding: 20px;
-            border-radius: 16px;
+        /* 오른쪽 별점 평가 패널 */
+        .modal__rating-panel {
+            background: rgba(18, 20, 29, 0.85);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .rating-box {
+            border-radius: 20px;
+            padding: 24px 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            min-width: 220px;
+            z-index: 100;
         }
 
-        .rating-title {
-            font-size: 14px;
-            font-weight: 600;
+        .rating-panel-title {
+            font-size: 16px;
+            font-weight: 700;
             color: #ffffff;
         }
 
@@ -89,32 +92,51 @@
         }
 
         .star-rating .star {
-            font-size: 24px;
+            font-size: 28px;
             color: #4b5563;
-            transition: color 0.15s ease;
+            transition: color 0.15s ease, transform 0.15s ease;
             user-select: none;
         }
 
+        .star-rating .star:hover,
         .star-rating .star.active {
             color: #fbbf24;
-            filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6));
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+            transform: scale(1.1);
         }
 
         .submit-rating-btn {
-            margin-top: 6px;
-            padding: 6px 16px;
-            font-size: 13px;
-            font-weight: 600;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 700;
             background: linear-gradient(135deg, #0070f3 0%, #7928ca 100%);
             color: #ffffff;
             border: none;
-            border-radius: 14px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 112, 243, 0.3);
         }
 
         .submit-rating-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(121, 40, 202, 0.5);
+        }
+
+        /* 카드 하단 평균 별점 표시 스타일 */
+        .card-avg-rating {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fbbf24;
+            text-align: center;
+        }
+
+        @media (max-width: 650px) {
+            .modal__content-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
         }
     </style>
 </head>
@@ -217,42 +239,44 @@
         <div class="modal__backdrop" onclick="closeModal()"></div>
         
         <div class="modal__content-wrapper">
-            <div class="modal__card" id="modalCard">
-                <div class="modal__card-inner" id="cardInner">
-                    <div class="modal__card-face modal__card-front">
-                        <img id="modalImg" src="" alt="Card">
-                        <div class="modal__card-glare" id="modalGlare"></div>
-                    </div>
-                    <!-- 모달에서 카드를 클릭하여 뒤집었을 때 나오는 별점 작성 영역 -->
-                    <div class="modal__card-face modal__card-back">
-                        <div class="rating-box">
-                            <span class="rating-title">별점 평가</span>
-                            <div class="star-rating" id="modalStarRating">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <button class="submit-rating-btn" onclick="submitCurrentRating()">별점 등록</button>
+            <!-- 좌측: 모달 카드 & 구매하기 버튼 -->
+            <div class="modal__left-col">
+                <div class="modal__card" id="modalCard">
+                    <div class="modal__card-inner" id="cardInner">
+                        <div class="modal__card-face modal__card-front">
+                            <img id="modalImg" src="" alt="Card">
+                            <div class="modal__card-glare" id="modalGlare"></div>
                         </div>
+                        <div class="modal__card-face modal__card-back"></div>
                     </div>
+                </div>
+
+                <div class="modal__action">
+                    <button class="buy-modal-btn" onclick="buyCurrentCard()">🛒 카드 구매하기</button>
                 </div>
             </div>
 
-            <div class="modal__action">
-                <button class="buy-modal-btn" onclick="buyCurrentCard()">🛒 카드 구매하기</button>
+            <!-- 우측: 별점 평가 패널 -->
+            <div class="modal__rating-panel">
+                <span class="rating-panel-title">⭐ 카드 별점 남기기</span>
+                <div class="star-rating" id="modalStarRating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <button class="submit-rating-btn" onclick="submitCurrentRating()">별점 등록</button>
             </div>
         </div>
     </div>
 
     <script>
         let currentCardName = '', currentImgUrl = '', currentCardKey = '';
-        let isFlipped = false;
         let selectedRatingValue = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 페이지 로드 시 상점에 있는 모든 카드의 평균 별점을 DB에서 불러옴
+            // 1. 상점 카드들의 평균 별점 조회
             const cardItems = document.querySelectorAll('.card-item');
             cardItems.forEach(item => {
                 const img = item.querySelector('img');
@@ -264,7 +288,7 @@
                 }
             });
 
-            // 2. 모달 별점 클릭 이벤트 세팅
+            // 2. 별점 이벤트 세팅
             setupStarRating();
         });
 
@@ -280,63 +304,16 @@
 
             document.getElementById('modalImg').src = imgUrl;
             document.getElementById('cardModal').classList.add('active');
-            resetCard3D();
             resetModalStars();
         }
 
         function closeModal() {
             document.getElementById('cardModal').classList.remove('active');
-            resetCard3D();
         }
 
-        function resetCard3D() {
-            isFlipped = false;
-            document.getElementById('cardInner').style.transform = 'rotateY(0deg)';
-            document.getElementById('modalCard').style.transform = 'rotateX(0deg) rotateY(0deg)';
-            document.getElementById('modalGlare').style.opacity = '0';
-        }
-
-        const modalCard = document.getElementById('modalCard');
-        const modalGlare = document.getElementById('modalGlare');
-        const cardInner = document.getElementById('cardInner');
-        let cardRect = null;
-
-        modalCard.addEventListener('mouseenter', () => {
-            cardRect = modalCard.getBoundingClientRect();
-        });
-
-        modalCard.addEventListener('mousemove', (e) => {
-            if (!cardRect) cardRect = modalCard.getBoundingClientRect();
-
-            const x = e.clientX - cardRect.left;
-            const y = e.clientY - cardRect.top;
-            const centerX = cardRect.width / 2;
-            const centerY = cardRect.height / 2;
-
-            const rotateX = ((y - centerY) / centerY) * -18;
-            const rotateY = ((x - centerX) / centerX) * 18;
-
-            modalCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            modalGlare.style.opacity = '1';
-            modalGlare.style.backgroundPosition = `${(x / cardRect.width) * 100}% ${(y / cardRect.height) * 100}%`;
-        });
-
-        modalCard.addEventListener('mouseleave', () => {
-            cardRect = null;
-            modalCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            modalGlare.style.opacity = '0';
-        });
-
-        // 카드 클릭 시 3D 회전 (별점 박스나 버튼 클릭 시에는 회전 방지)
-        modalCard.addEventListener('click', (e) => {
-            if (e.target.closest('.rating-box') || e.target.closest('button')) return;
-            isFlipped = !isFlipped;
-            cardInner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
-        });
-
-        // 카드 구매 기능 (POST /api/cards/purchase)
+        // 카드 구매 API 요청 (POST /api/cards/purchase)
         async function buyCurrentCard() {
-            if (!confirm(`[${currentCardName}] 카드를 구매하시겠습니까?`)) return;
+            if (!confirm(`카드를 구매하시겠습니까?`)) return;
 
             try {
                 const response = await fetch('/api/cards/purchase', {
@@ -346,7 +323,7 @@
                 });
 
                 if (response.ok) {
-                    alert('구매 성공! 보관함에서 확인하실 수 있습니다.');
+                    alert('구매 성공');
                     closeModal();
                 } else {
                     alert('구매 실패');
@@ -356,7 +333,7 @@
             }
         }
 
-        // 별점 UI 클릭 인터랙션
+        // 별점 클릭 UI 핸들러
         function setupStarRating() {
             const stars = document.querySelectorAll('#modalStarRating .star');
             stars.forEach(star => {
@@ -410,8 +387,6 @@
                 alert("서버 통신 오류가 발생했습니다.");
             }
         }
-
-        // 서버에서 카드 평균 별점 조회 (GET /api/ratings/{cardKey}/average)
         async function loadAverageRating(cardKey) {
             try {
                 const res = await fetch(`/api/ratings/${cardKey}/average`);
@@ -424,7 +399,6 @@
             }
         }
 
-        // 사진 하단에 평균 별점 출력
         function updateAvgDisplay(cardKey, avgRating) {
             const avgScoreElem = document.querySelector(`#avg-rating-${cardKey} .avg-score`);
             if (avgScoreElem) {
