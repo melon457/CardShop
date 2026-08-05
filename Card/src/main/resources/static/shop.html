@@ -6,6 +6,49 @@
     <title>카드 상점</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
+        /* 섹션 타이틀 중앙 정렬 및 정렬 드롭다운 우측 배치 */
+        .section-title {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .section-title h2 {
+            font-size: 26px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0;
+        }
+
+        .sort-select {
+            position: absolute;
+            right: 0;
+            background: rgba(18, 20, 29, 0.85);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        .sort-select:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(30, 35, 50, 0.95);
+        }
+
+        .sort-select option {
+            background: #0b0d14;
+            color: #ffffff;
+        }
+
         /* 모달 레이아웃: 좌측(카드+구매버튼) / 우측(별점 평가 패널) */
         .modal__content-wrapper {
             display: flex;
@@ -25,7 +68,7 @@
             position: relative;
         }
 
-        /* 모달 카드 (3D 기울임 제거, 깔끔한 레이아웃 유지) */
+        /* 모달 카드 */
         .modal__card {
             position: relative;
             z-index: 1;
@@ -133,6 +176,13 @@
         }
 
         @media (max-width: 650px) {
+            .section-title {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .sort-select {
+                position: static;
+            }
             .modal__content-wrapper {
                 flex-direction: column;
                 gap: 20px;
@@ -158,77 +208,83 @@
     <div class="container">
         <div class="section-title">
             <h2>🛒 카드 상점</h2>
+            <select id="sort-select" onchange="handleSortChange(this.value)" class="sort-select">
+                <option value="default">기본순</option>
+                <option value="high">⭐ 별점 높은순</option>
+                <option value="low">⭐ 별점 낮은순</option>
+            </select>
         </div>
-        <div class="gallery">
-            <div class="card-item" onclick="open3DModal('Back Card', './image/back.png')">
+
+        <div class="gallery" id="gallery-container">
+            <div class="card-item" data-original-index="0" onclick="open3DModal('Back Card', './image/back.png')">
                 <div class="card-item__inner"><img src="./image/back.png" alt="Back Card"></div>
                 <div class="card-avg-rating" id="avg-rating-back"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Lee Card', './image/lee.png')">
+            <div class="card-item" data-original-index="1" onclick="open3DModal('Lee Card', './image/lee.png')">
                 <div class="card-item__inner"><img src="./image/lee.png" alt="Lee Card"></div>
                 <div class="card-avg-rating" id="avg-rating-lee"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Na Card', './image/na.png')">
+            <div class="card-item" data-original-index="2" onclick="open3DModal('Na Card', './image/na.png')">
                 <div class="card-item__inner"><img src="./image/na.png" alt="Na Card"></div>
                 <div class="card-avg-rating" id="avg-rating-na"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Park Card', './image/park.png')">
+            <div class="card-item" data-original-index="3" onclick="open3DModal('Park Card', './image/park.png')">
                 <div class="card-item__inner"><img src="./image/park.png" alt="Park Card"></div>
                 <div class="card-avg-rating" id="avg-rating-park"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Song Card', './image/song.png')">
+            <div class="card-item" data-original-index="4" onclick="open3DModal('Song Card', './image/song.png')">
                 <div class="card-item__inner"><img src="./image/song.png" alt="Song Card"></div>
                 <div class="card-avg-rating" id="avg-rating-song"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Kim Card', './image/kim.png')">
+            <div class="card-item" data-original-index="5" onclick="open3DModal('Kim Card', './image/kim.png')">
                 <div class="card-item__inner"><img src="./image/kim.png" alt="Kim Card"></div>
                 <div class="card-avg-rating" id="avg-rating-kim"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Iu Card', './image/iu.png')">
+            <div class="card-item" data-original-index="6" onclick="open3DModal('Iu Card', './image/iu.png')">
                 <div class="card-item__inner"><img src="./image/iu.png" alt="Iu Card"></div>
                 <div class="card-avg-rating" id="avg-rating-iu"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Go Card', './image/go.png')">
+            <div class="card-item" data-original-index="7" onclick="open3DModal('Go Card', './image/go.png')">
                 <div class="card-item__inner"><img src="./image/go.png" alt="Go Card"></div>
                 <div class="card-avg-rating" id="avg-rating-go"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Min Card', './image/min.png')">
+            <div class="card-item" data-original-index="8" onclick="open3DModal('Min Card', './image/min.png')">
                 <div class="card-item__inner"><img src="./image/min.png" alt="Min Card"></div>
                 <div class="card-avg-rating" id="avg-rating-min"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Snow Card', './image/snow.png')">
+            <div class="card-item" data-original-index="9" onclick="open3DModal('Snow Card', './image/snow.png')">
                 <div class="card-item__inner"><img src="./image/snow.png" alt="Snow Card"></div>
                 <div class="card-avg-rating" id="avg-rating-snow"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Ji Card', './image/ji.png')">
+            <div class="card-item" data-original-index="10" onclick="open3DModal('Ji Card', './image/ji.png')">
                 <div class="card-item__inner"><img src="./image/ji.png" alt="Ji Card"></div>
                 <div class="card-avg-rating" id="avg-rating-ji"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('An Card', './image/an.png')">
+            <div class="card-item" data-original-index="11" onclick="open3DModal('An Card', './image/an.png')">
                 <div class="card-item__inner"><img src="./image/an.png" alt="An Card"></div>
                 <div class="card-avg-rating" id="avg-rating-an"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Ga Card', './image/ga.png')">
+            <div class="card-item" data-original-index="12" onclick="open3DModal('Ga Card', './image/ga.png')">
                 <div class="card-item__inner"><img src="./image/ga.png" alt="Ga Card"></div>
                 <div class="card-avg-rating" id="avg-rating-ga"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Ka Card', './image/ka.png')">
+            <div class="card-item" data-original-index="13" onclick="open3DModal('Ka Card', './image/ka.png')">
                 <div class="card-item__inner"><img src="./image/ka.png" alt="Ka Card"></div>
                 <div class="card-avg-rating" id="avg-rating-ka"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Yuna Card', './image/yuna.png')">
+            <div class="card-item" data-original-index="14" onclick="open3DModal('Yuna Card', './image/yuna.png')">
                 <div class="card-item__inner"><img src="./image/yuna.png" alt="Yuna Card"></div>
                 <div class="card-avg-rating" id="avg-rating-yuna"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Es Card', './image/es.png')">
+            <div class="card-item" data-original-index="15" onclick="open3DModal('Es Card', './image/es.png')">
                 <div class="card-item__inner"><img src="./image/es.png" alt="Es Card"></div>
                 <div class="card-avg-rating" id="avg-rating-es"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Jang Card', './image/jang.png')">
+            <div class="card-item" data-original-index="16" onclick="open3DModal('Jang Card', './image/jang.png')">
                 <div class="card-item__inner"><img src="./image/jang.png" alt="Jang Card"></div>
                 <div class="card-avg-rating" id="avg-rating-jang"><span class="avg-score">★ 0.0</span></div>
             </div>
-            <div class="card-item" onclick="open3DModal('Ian Card', './image/ian.png')">
+            <div class="card-item" data-original-index="17" onclick="open3DModal('Ian Card', './image/ian.png')">
                 <div class="card-item__inner"><img src="./image/ian.png" alt="Ian Card"></div>
                 <div class="card-avg-rating" id="avg-rating-ian"><span class="avg-score">★ 0.0</span></div>
             </div>
@@ -275,20 +331,22 @@
         let currentCardName = '', currentImgUrl = '', currentCardKey = '';
         let selectedRatingValue = 0;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. 상점 카드들의 평균 별점 조회
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. 상점 카드들의 평균 별점을 DB에서 조회하고 속성에 기록
             const cardItems = document.querySelectorAll('.card-item');
-            cardItems.forEach(item => {
+            const promises = Array.from(cardItems).map(async (item) => {
                 const img = item.querySelector('img');
                 if (img && img.src) {
                     const cardKey = getCardKeyFromUrl(img.src);
                     if (cardKey) {
-                        loadAverageRating(cardKey);
+                        await loadAverageRating(cardKey);
                     }
                 }
             });
 
-            // 2. 별점 이벤트 세팅
+            await Promise.all(promises);
+
+            // 2. 별점 선택 이벤트 핸들러 세팅
             setupStarRating();
         });
 
@@ -323,7 +381,7 @@
                 });
 
                 if (response.ok) {
-                    alert('구매 성공');
+                    alert('구매 성공! 보관함에서 확인하실 수 있습니다.');
                     closeModal();
                 } else {
                     alert('구매 실패');
@@ -379,6 +437,12 @@
                     const data = await response.json();
                     alert("별점이 성공적으로 등록되었습니다!");
                     updateAvgDisplay(currentCardKey, data.averageRating);
+                    
+                    // 현재 선택된 정렬 방식 유지
+                    const sortSelect = document.getElementById('sort-select');
+                    if (sortSelect.value !== 'default') {
+                        handleSortChange(sortSelect.value);
+                    }
                 } else {
                     alert("별점 등록에 실패했습니다.");
                 }
@@ -387,6 +451,8 @@
                 alert("서버 통신 오류가 발생했습니다.");
             }
         }
+
+        // 서버에서 평균 별점 조회 (GET /api/ratings/{cardKey}/average)
         async function loadAverageRating(cardKey) {
             try {
                 const res = await fetch(`/api/ratings/${cardKey}/average`);
@@ -399,16 +465,49 @@
             }
         }
 
+        // 사진 하단 평균 별점 업데이트 및 data-rating 속성 부여
         function updateAvgDisplay(cardKey, avgRating) {
+            const numAvg = Number(avgRating) || 0;
             const avgScoreElem = document.querySelector(`#avg-rating-${cardKey} .avg-score`);
             if (avgScoreElem) {
-                avgScoreElem.textContent = `★ ${Number(avgRating).toFixed(1)}`;
+                avgScoreElem.textContent = `★ ${numAvg.toFixed(1)}`;
+                const cardItem = avgScoreElem.closest('.card-item');
+                if (cardItem) {
+                    cardItem.setAttribute('data-rating', numAvg);
+                }
             }
+        }
+
+        // 정렬 변경 이벤트
+        function handleSortChange(order) {
+            const gallery = document.getElementById('gallery-container');
+            const items = Array.from(gallery.querySelectorAll('.card-item'));
+
+            items.sort((a, b) => {
+                if (order === 'default') {
+                    const idxA = parseInt(a.getAttribute('data-original-index') || '0');
+                    const idxB = parseInt(b.getAttribute('data-original-index') || '0');
+                    return idxA - idxB;
+                }
+
+                const ratingA = parseFloat(a.getAttribute('data-rating') || '0');
+                const ratingB = parseFloat(b.getAttribute('data-rating') || '0');
+
+                if (order === 'high') {
+                    return ratingB - ratingA; // 별점 내림차순
+                } else if (order === 'low') {
+                    return ratingA - ratingB; // 별점 오름차순
+                }
+                return 0;
+            });
+
+            // 재정렬된 요소들을 갤러리에 다시 배치
+            items.forEach(item => gallery.appendChild(item));
         }
     </script>
 
     <div id="yt-player" style="display:none;"></div>
-    <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM OFF</button>
+    <button id="bgm-toggle-btn" class="bgm-btn" onclick="toggleBGM()">🎵 BGM ON</button>
     <script src="js/bgm.js"></script>
 </body>
 </html>
