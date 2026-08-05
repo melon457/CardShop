@@ -15,6 +15,16 @@
             position: relative;
         }
 
+        .modal__card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal__card * {
+            pointer-events: none;
+        }
+
+        /* 카드 판매 버튼 레이어 최상단 설정 */
         .modal__action {
             display: flex;
             justify-content: center;
@@ -38,7 +48,7 @@
         }
 
         .sell-modal-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(220, 38, 38, 0.6);
         }
     </style>
